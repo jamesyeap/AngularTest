@@ -1,31 +1,45 @@
-import { TestBed } from '@angular/core/testing';
+import {
+  TestBed,
+  async,
+  ComponentFixture,
+  tick,
+  fakeAsync,
+} from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
+import { DebugElement } from '@angular/core';
+
 import { AppComponent } from './app.component';
+import { ReactiveFormsModule } from '@angular/forms';
 
 describe('AppComponent', () => {
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [
-        AppComponent
-      ],
+  let fixture: ComponentFixture<AppComponent>;
+  let debugElement: DebugElement;
+
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      declarations: [AppComponent],
+      imports: [ReactiveFormsModule],
     }).compileComponents();
-  });
 
-  it('should create the app', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
-  });
+    fixture = TestBed.createComponent(AppComponent);
+    debugElement = fixture.debugElement;
 
-  it(`should have as title 'AngularTest'`, () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app.title).toEqual('AngularTest');
-  });
-
-  it('should render title', () => {
-    const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.content span')?.textContent).toContain('AngularTest app is running!');
+    fixture.whenStable();
+  }));
+
+  it('should render a text box', () => {
+    const textBoxDe: DebugElement = debugElement.query(By.css('textarea'));
+    expect(textBoxDe).toBeTruthy();
+  });
+
+  it('should allow users to input text', async () => {
+    const textBox: any = debugElement.query(By.css('textarea')).nativeElement;
+    textBox.value = 'abcde';
+    textBox.dispatchEvent(new Event('input'));
+
+    fixture.whenStable().then(() => {
+      expect(textBox.value).toEqual('abcde');
+    });
   });
 });
